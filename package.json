@@ -1,0 +1,23 @@
+{
+  "name": "pstd",
+  "version": "0.0.1",
+  "description": "Project Standard Fixer",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "update": "npm link"
+  },
+  "keywords": [
+    "javascript",
+    "project",
+    "lint",
+    "standard"
+  ],
+  "bin": {
+    "pstd": "./index.js"
+  },
+  "author": "Asher",
+  "license": "MIT",
+  "dependencies": {
+  }
+}
