@@ -16,8 +16,11 @@
   "bin": {
     "pstd": "./index.js"
   },
+  "engines": {
+    "node": ">= 6.0.0",
+    "npm": ">= 3.0.0"
+  },
   "author": "Asher",
   "license": "MIT",
-  "dependencies": {
-  }
+  "dependencies": {}
 }
