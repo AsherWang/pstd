@@ -1,12 +1,7 @@
-const npmrcPlugin = require('./npmrc');
+const npmrc = require('./npmrc');
+const eslint = require('./eslint');
 
-const list = [];
-list.push(npmrcPlugin);
-
-
-module.exports = {
-    list,
-    scan(){
-        return Promise.all(list.map(plugin => plugin.scan()));
-    }
-};
+module.exports = [
+  npmrc,
+  eslint,
+];

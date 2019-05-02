@@ -1,44 +1,121 @@
 #!/usr/bin/env node
+const fs = require('fs');
+const readline = require('readline');
+const childProcess = require('child_process');
+const inquirer = require('inquirer');
 const plugins = require('./plugins');
 
-// load all plugins
-console.log('hello pstd');
-console.log(`plugins length: ${plugins.length}`);
+let advices = null;
+let lineBreak = '\n';
+
+const checkLBStyle = (filePath) => {
+  if (fs.existsSync(filePath)) {
+    const content = fs.readFileSync(filePath, { encoding: 'utf8' });
+    const newlines = content.match(/(?:\r?\n)/g) || [];
+    if (newlines.length === 0) {
+      return;
+    }
+    const crlf = newlines.filter(newline => newline === '\r\n').length;
+    if (crlf * 2 > newlines.length) {
+      console.log('lineBreak: CRLF');
+      lineBreak = '\r\n';
+    } else {
+      console.log('lineBreak: LF');
+    }
+  }
+};
+
+const runCMDSync = (cmd, options) => {
+  console.log(`run CMD: ${cmd}`);
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  rl.close();
+  childProcess.execSync(cmd, options);
+  return true;
+};
+
 
 // scan & check
 const scan = () => {
-    return plugins.scan();
+  plugins.map(async (plugin) => {
+    await plugin.scan();
+  });
+  advices = plugins
+    .filter(plugin => plugin.advice)
+    .map(plugin => plugin.advice);
 };
 
 // show plugins with info scaned
-const showMenu = () => {
-
+const showMenu = async () => {
+  const presetChoices = [
+    new inquirer.Separator(),
+    {
+      name: 'quit',
+      value: 'quit',
+    },
+  ];
+  const choices = advices.slice(0, 1).concat(presetChoices);
+  const choice = await inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: 'advices for this project',
+        choices,
+      },
+    ])
+    .then(({ action }) => action);
+  return choice;
 };
 
 const quit = () => {
-    process.exit(0);
+  console.log('bye~');
+  process.exit(0);
 };
 
-async function main(){
-    try {
-        await scan();
-        while(true){
-            const choice = await showMenu();
-            switch(choice){
-                case 1:
-                    console.log('2333');
-                case -1:
-                    quit();
-                default:
-                    console.log('nothing chosen');
-                break;
-            }
-        }
-    } catch (error) {
-        console.log(`error occurred: ${error.message}`);
-        process.exit(1);
-    }
+const pluginExec = async (choice) => {
+  const plugin = plugins.find(({ advice }) => advice && advice.value === choice);
+  const opt = {
+    lineBreak,
+    runCMDSync,
+  };
+  if (plugin) {
+    await plugin.exec(opt);
+    return true;
+  }
+  return false;
+};
 
+async function main() {
+  try {
+    if (!fs.existsSync('./package.json')) {
+      console.log('package.json not found, try create one with npm init');
+      process.exit(0);
+    }
+    checkLBStyle('./package.json');
+    while (true) { // eslint-disable-line
+      await scan();
+      if (advices && advices.length > 0) {
+        const choice = await showMenu();
+        switch (choice) {
+          case 'quit':
+            quit();
+            break;
+          default:
+            await pluginExec(choice);
+            break;
+        }
+      } else {
+        console.log('all check passed, cool~');
+        process.exit(0);
+      }
+    }
+  } catch (error) {
+    console.log(`error occurred: ${error.message}`);
+    process.exit(1);
+  }
 }
 
 main();
