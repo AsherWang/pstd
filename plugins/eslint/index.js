@@ -3,6 +3,7 @@ const fs = require('fs');
 module.exports = {
   name: 'eslint',
   advice: null,
+  skipped: false,
   scan() {
     const files = fs.readdirSync('.');
     const regExp = /^\.eslintrc\.*/;

@@ -42,15 +42,29 @@ const scan = () => {
   plugins.map(async (plugin) => {
     await plugin.scan();
   });
+  // console.log('plugins', plugins)
   advices = plugins
-    .filter(plugin => plugin.advice)
+    .filter(plugin => !plugin.skipped && plugin.advice)
     .map(plugin => plugin.advice);
+};
+
+const skip = () => {
+  const plugin = plugins
+    .find(plugin => !plugin.skipped && plugin.advice)
+  if (plugin) {
+    plugin.skipped = true;
+    plugin.advice = null;
+  }
 };
 
 // show plugins with info scaned
 const showMenu = async () => {
   const presetChoices = [
     new inquirer.Separator(),
+    {
+      name: 'skip',
+      value: 'skip',
+    },
     {
       name: 'quit',
       value: 'quit',
@@ -102,6 +116,9 @@ async function main() {
         switch (choice) {
           case 'quit':
             quit();
+            break;
+          case 'skip':
+            skip();
             break;
           default:
             await pluginExec(choice);

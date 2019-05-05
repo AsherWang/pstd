@@ -10,6 +10,7 @@ const kvs = [
 module.exports = {
   name: 'npmrc',
   advice: null,
+  skipped: false,
   scan() {
     if (!fs.existsSync(filePath)) {
       this.advice = {
