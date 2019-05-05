@@ -1,40 +1,9 @@
 #!/usr/bin/env node
 const fs = require('fs');
-const readline = require('readline');
-const childProcess = require('child_process');
 const inquirer = require('inquirer');
 const plugins = require('./plugins');
 
 let advices = null;
-let lineBreak = '\n';
-
-const checkLBStyle = (filePath) => {
-  if (fs.existsSync(filePath)) {
-    const content = fs.readFileSync(filePath, { encoding: 'utf8' });
-    const newlines = content.match(/(?:\r?\n)/g) || [];
-    if (newlines.length === 0) {
-      return;
-    }
-    const crlf = newlines.filter(newline => newline === '\r\n').length;
-    if (crlf * 2 > newlines.length) {
-      console.log('lineBreak: CRLF');
-      lineBreak = '\r\n';
-    } else {
-      console.log('lineBreak: LF');
-    }
-  }
-};
-
-const runCMDSync = (cmd, options) => {
-  console.log(`run CMD: ${cmd}`);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-  rl.close();
-  childProcess.execSync(cmd, options);
-  return true;
-};
 
 
 // scan & check
@@ -44,13 +13,13 @@ const scan = () => {
   });
   // console.log('plugins', plugins)
   advices = plugins
-    .filter(plugin => !plugin.skipped && plugin.advice)
-    .map(plugin => plugin.advice);
+    .filter(p => !p.skipped && p.advice)
+    .map(p => p.advice);
 };
 
 const skip = () => {
   const plugin = plugins
-    .find(plugin => !plugin.skipped && plugin.advice)
+    .find(p => !p.skipped && p.advice);
   if (plugin) {
     plugin.skipped = true;
     plugin.advice = null;
@@ -91,15 +60,9 @@ const quit = () => {
 
 const pluginExec = async (choice) => {
   const plugin = plugins.find(({ advice }) => advice && advice.value === choice);
-  const opt = {
-    lineBreak,
-    runCMDSync,
-  };
   if (plugin) {
-    await plugin.exec(opt);
-    return true;
+    await plugin.exec();
   }
-  return false;
 };
 
 async function main() {
@@ -108,11 +71,10 @@ async function main() {
       console.log('package.json not found, try create one with npm init');
       process.exit(0);
     }
-    checkLBStyle('./package.json');
     while (true) { // eslint-disable-line
-      await scan();
+      await scan(); // eslint-disable-line
       if (advices && advices.length > 0) {
-        const choice = await showMenu();
+        const choice = await showMenu(); // eslint-disable-line
         switch (choice) {
           case 'quit':
             quit();
@@ -121,7 +83,7 @@ async function main() {
             skip();
             break;
           default:
-            await pluginExec(choice);
+            await pluginExec(choice); // eslint-disable-line
             break;
         }
       } else {
