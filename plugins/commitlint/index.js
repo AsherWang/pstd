@@ -1,5 +1,7 @@
+const fs = require('fs');
 const Plugin = require('../base');
 
+const defaultConfig = "module.exports = {extends: ['@commitlint/config-conventional']}";
 class Commitlint extends Plugin {
   constructor() {
     super('commitlint');
@@ -27,14 +29,15 @@ class Commitlint extends Plugin {
   }
 
   exec() {
-    this.tool.runCMDSync('npm i --save-dev husky @commitlint/cli');
+    this.tool.runCMDSync('npm i husky @commitlint/cli @commitlint/config-conventional --save-dev');
     const packageObj = this.tool.getPackageObj();
     packageObj.husky = {
       hooks: {
-        'commit-msg': 'commitlint',
+        'commit-msg': 'commitlint -E HUSKY_GIT_PARAMS',
       },
     };
     this.tool.setPackageObj(packageObj);
+    fs.writeFileSync('.commitlintrc.js', defaultConfig);
     console.log('commitlint to do...');
   }
 }

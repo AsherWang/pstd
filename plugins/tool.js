@@ -12,10 +12,10 @@ const checkLBStyle = (filePath) => {
     }
     const crlf = newlines.filter(newline => newline === '\r\n').length;
     if (crlf * 2 > newlines.length) {
-      console.log('lineBreak: CRLF');
+      // console.log('lineBreak: CRLF');
       lineBreak = '\r\n';
     } else {
-      console.log('lineBreak: LF');
+      // console.log('lineBreak: LF');
     }
   }
 };
@@ -23,6 +23,8 @@ const checkLBStyle = (filePath) => {
 const runCMDSync = (cmd, options) => {
   console.log(cmd);
   const defaultOpt = { stdio: 'inherit' };
+  // fix some strange bug in win10
+  // https://github.com/SBoudrias/Inquirer.js/issues/792
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,

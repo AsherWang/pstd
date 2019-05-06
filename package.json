@@ -1,16 +1,16 @@
 {
   "name": "pstd",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "Project Standard Advisor",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
   "keywords": [
     "javascript",
     "project",
     "lint",
-    "standard"
+    "standard",
+    "npmrc",
+    "eslint",
+    "commitlint"
   ],
   "bin": {
     "pstd": "./index.js"
