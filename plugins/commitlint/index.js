@@ -29,7 +29,7 @@ class Commitlint extends Plugin {
   }
 
   exec() {
-    this.tool.runCMDSync('npm i husky @commitlint/cli @commitlint/config-conventional --save-dev');
+    this.tool.installDevDependcies(['husky', '@commitlint/cli', '@commitlint/config-conventional']);
     const packageObj = this.tool.getPackageObj();
     packageObj.husky = {
       hooks: {

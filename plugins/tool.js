@@ -41,6 +41,8 @@ const isFilesExist = (regExp, path = '.') => {
   return filteredFiles.length > 0;
 };
 
+const useYarn = isFilesExist('yarn.lock');
+
 const getPackageObj = () => {
   const packageStr = fs.readFileSync('./package.json', { encoding: 'utf8' });
   return JSON.parse(packageStr);
@@ -51,14 +53,24 @@ const setPackageObj = (nv) => {
   return fs.writeFileSync('./package.json', packageStr);
 };
 
+const installDevDependcies = (pkgs) => {
+  if (useYarn) {
+    runCMDSync(`yarn add ${pkgs.join(' ')} -D`);
+  } else {
+    runCMDSync(`npm i ${pkgs.join(' ')} -D`);
+  }
+};
+
 const init = () => {
   checkLBStyle('./package.json');
   return {
+    useYarn,
     lineBreak,
     runCMDSync,
     isFilesExist,
     getPackageObj,
     setPackageObj,
+    installDevDependcies,
   };
 };
 

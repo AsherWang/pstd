@@ -22,7 +22,7 @@ class Eslint extends Plugin {
 
   exec() {
     // install eslint and run eslint --init
-    this.tool.runCMDSync('npm i eslint --save-dev');
+    this.tool.installDevDependcies(['eslint']);
     this.tool.runCMDSync('node ./node_modules/eslint/bin/eslint.js --init');
   }
 }
